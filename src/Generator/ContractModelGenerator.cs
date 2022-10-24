@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using Generator.SourceTree;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,28 +13,35 @@ namespace Generator
         {
             Console.WriteLine($"Executing {nameof(ContractModelGenerator)}");
 
-            var importedReferenceTypes = this.GetAllTypeSymbols(context, context.Compilation).ToArray();
+            if (!context.AnalyzerConfigOptions.GlobalOptions
+                .TryGetValue(Constants.GenerateFromDtoBuildPropertyName, out var generateFromAssemblyName))
+            {
+                Console.WriteLine($"{Constants.GenerateFromDtoBuildPropertyName} build property not found. No sources to generate.");
+                return;
+            }
+
+            var importedReferenceTypes = this.GetAllTypeSymbols(context.Compilation, generateFromAssemblyName).ToArray();
             if (!importedReferenceTypes.Any())
             {
                 // No types found for specified reference assembly. Nothing to do.
                 return;
             }
 
-            var properties = importedReferenceTypes
+            var topLevelTypeSymbols = importedReferenceTypes
                 .Where(t => t.TypeKind == TypeKind.Enum || t.TypeKind == TypeKind.Class)
                 .Where(t => t.DeclaredAccessibility == Accessibility.Public)
-                .Select(t => new
-                {
-                    TypeSymbol = t,
-                    TypeName = t.Name,
-                    Properties = t.GetMembers()
-                })
                 .ToArray();
 
-            Console.WriteLine("Operating type dump");
-            foreach (var x in properties)
+            var sourceNodes = new SourceGeneratorNodeFactory(
+                generateFromAssemblyName,
+                context.Compilation.Assembly.Name)
+                .CreateGeneratorsFromTypes(topLevelTypeSymbols);
+            foreach (var parentNode in sourceNodes)
             {
-                Console.WriteLine($"{x.TypeName} - members {string.Join(", ", x.Properties.Select(p => p.ToDisplayString()))}");
+                var codeGeneratorWriter = new CodeGeneratorWriter(context);
+                parentNode.AddSourceText(codeGeneratorWriter);
+
+                codeGeneratorWriter.Write();
             }
         }
 
@@ -42,22 +50,15 @@ namespace Generator
         }
 
         private IEnumerable<ITypeSymbol> GetAllTypeSymbols(
-            GeneratorExecutionContext context,
-            Compilation compilation)
+            Compilation compilation,
+            string generateFromAssemblyName)
         {
-            Console.WriteLine($"All options {string.Join(", ", context.AnalyzerConfigOptions.GlobalOptions.Keys)}");
-            if (!context.AnalyzerConfigOptions.GlobalOptions
-                .TryGetValue("build_property.GenerateDtoFromAssembly", out var usedAssemblyName))
-            {
-                Console.WriteLine("Build property not found. Bailing.");
-                return Enumerable.Empty<ITypeSymbol>();
-            }
-            Console.WriteLine($"Loading referenced types for assembly {usedAssemblyName}");
+            Console.WriteLine($"Loading referenced types for assembly {generateFromAssemblyName}");
 
             return compilation
                 .SourceModule
                 .ReferencedAssemblySymbols
-                .Where(a => a.Name == usedAssemblyName)
+                .Where(a => a.Name == generateFromAssemblyName)
                 .SelectMany(a =>
                 {
                     try
