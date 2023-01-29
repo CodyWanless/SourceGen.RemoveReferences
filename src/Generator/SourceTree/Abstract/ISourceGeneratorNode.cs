@@ -1,7 +1,7 @@
-﻿using Microsoft.CodeAnalysis;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 
-namespace Generator.SourceTree
+namespace Generator.SourceTree.Abstract
 {
     internal interface ISourceGeneratorNode
     {
@@ -12,5 +12,7 @@ namespace Generator.SourceTree
         IReadOnlyCollection<AttributeData> Attributes { get; }
 
         void AddSourceText(ICodeGeneratorBuilder codeGeneratorBuilder);
+
+        void Accept(ISourceGeneratorNodeVisitor sourceGeneratorNodeVisitor);
     }
 }

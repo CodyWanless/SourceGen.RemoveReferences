@@ -1,6 +1,6 @@
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using System.Text;
 using VerifyCS = Generator.Tests.CSharpSourceGeneratorVerifier<Generator.ContractModelGenerator>;
 
 namespace Generator.Tests

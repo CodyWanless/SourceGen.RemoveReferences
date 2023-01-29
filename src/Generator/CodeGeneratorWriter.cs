@@ -1,14 +1,14 @@
-﻿using Generator.SourceTree;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Generator.SourceTree.Abstract;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Generator
 {
-    internal class CodeGeneratorWriter : ICodeGeneratorWriter, ICodeGeneratorBuilder, ICodeGeneratorScope
+    internal sealed class CodeGeneratorWriter : ICodeGeneratorWriter, ICodeGeneratorBuilder, ICodeGeneratorScope
     {
         private readonly StringBuilder stringBuilder;
         private readonly Stack<WriteScopeDetails> writeScopeDetailStack;
@@ -34,12 +34,16 @@ namespace Generator
 
         public void AddLineOfSource(string sourceText)
         {
-            this.stringBuilder.Append(this.currentWriteDetails.GetIndentWhitespace());
+            this.stringBuilder.Append(this.currentWriteDetails.IndentWhitespace);
             this.stringBuilder.Append(sourceText);
         }
 
         public void BeginWriteScope(ISourceGeneratorNode node)
         {
+            // Add brace to denote new scope
+            this.stringBuilder.AppendLine("{");
+
+            // Capture parent information and update indentation
             WriteScopeDetails writeScopeSettings = this.currentWriteDetails.Parent is null
                 ? new(node, 0)
                 : new(node, this.currentWriteDetails.IndentationLevel + 4);
@@ -50,7 +54,11 @@ namespace Generator
 
         public void EndWriteScope()
         {
+            // Reset to prior parent
             this.currentWriteDetails = this.writeScopeDetailStack.Pop();
+
+            // Add closing brace
+            this.stringBuilder.AppendLine("}");
         }
 
         public void Write()
@@ -65,22 +73,20 @@ namespace Generator
 
         private record WriteScopeDetails
         {
-            private readonly string indentWhitespace;
-
             public WriteScopeDetails(
                 ISourceGeneratorNode? parent,
                 int indentationLevel)
             {
                 this.Parent = parent;
                 this.IndentationLevel = indentationLevel;
-                this.indentWhitespace = new string(Enumerable.Repeat(' ', indentationLevel).ToArray());
+                this.IndentWhitespace = new string(Enumerable.Repeat(' ', indentationLevel).ToArray());
             }
 
             public ISourceGeneratorNode? Parent { get; }
 
             public int IndentationLevel { get; }
 
-            public string GetIndentWhitespace() => this.indentWhitespace;
+            public string IndentWhitespace { get; }
         }
     }
 }

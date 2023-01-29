@@ -1,46 +1,47 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
 using System.Collections.Generic;
+using Generator.SourceTree.Abstract;
+using Microsoft.CodeAnalysis;
 
 namespace Generator.SourceTree.Model
 {
-    internal record EnumGeneratorNode : TypeGeneratorNode
+    internal record EnumGeneratorNode : ISourceGeneratorNode
     {
-        private readonly IReadOnlyCollection<ISourceGeneratorNode> childSourceGeneratorNodes;
+        private readonly INamedTypeSymbol namedTypeSymbol;
 
         public EnumGeneratorNode(
-            string name,
-            string @namespace,
-            IReadOnlyCollection<INamedTypeSymbol> interfaces,
-            IReadOnlyCollection<AttributeData> attributes,
-            IReadOnlyCollection<string> usingDeclarations,
-            IReadOnlyCollection<ISourceGeneratorNode> childSourceGeneratorNodes)
-            : base(name, @namespace, interfaces, attributes, usingDeclarations)
+            INamedTypeSymbol symbol,
+            ISourceGeneratorNode namespaceGeneratorNode,
+            IReadOnlyCollection<ISourceGeneratorNode> children)
         {
-            this.childSourceGeneratorNodes = childSourceGeneratorNodes;
+            this.namedTypeSymbol = symbol;
+            this.NamespaceGeneratorNode = namespaceGeneratorNode;
+            this.Children = children;
         }
 
-        public override void AddSourceText(ICodeGeneratorBuilder codeGeneratorBuilder)
+        public string Name => this.namedTypeSymbol.Name;
+
+        public IReadOnlyCollection<string> RequiredNamespaces => throw new NotImplementedException();
+
+        public IReadOnlyCollection<AttributeData> Attributes => throw new NotImplementedException();
+
+        public ISourceGeneratorNode NamespaceGeneratorNode { get; }
+
+        public IReadOnlyCollection<ISourceGeneratorNode> Children { get; }
+
+        public void Accept(ISourceGeneratorNodeVisitor sourceGeneratorNodeVisitor)
         {
-            foreach (var usingDeclaration in this.RequiredNamespaces)
-            {
-                codeGeneratorBuilder.AddLineOfSource($"using {usingDeclaration}");
-            }
-            codeGeneratorBuilder.AddNewLine();
+            sourceGeneratorNodeVisitor.VisitEnum(this);
+        }
 
-            codeGeneratorBuilder.AddLineOfSource($"namespace {this.Namespace}");
-            codeGeneratorBuilder.AddLineOfSource("{");
+        public void AddSourceText(
+            ICodeGeneratorBuilder codeGeneratorBuilder)
+        {
+            // TODO: Aggregate usings 
+            //       Remove user configurated interfaces and attributes by root namespace
+            //       Interfaces
 
-            codeGeneratorBuilder.AddLineOfSource($"public class {this.Name}");
-            codeGeneratorBuilder.AddLineOfSource("{");
-
-            foreach (var child in this.childSourceGeneratorNodes)
-            {
-                child.AddSourceText(codeGeneratorBuilder);
-            }
-
-            codeGeneratorBuilder.AddLineOfSource("}");
-
-            codeGeneratorBuilder.AddLineOfSource("}");
+            codeGeneratorBuilder.AddLineOfSource($"public enum {this.Name}");
         }
     }
 }

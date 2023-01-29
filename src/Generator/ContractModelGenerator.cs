@@ -1,8 +1,8 @@
-﻿using Generator.SourceTree;
-using Microsoft.CodeAnalysis;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Generator.SourceTree;
+using Microsoft.CodeAnalysis;
 
 namespace Generator
 {
@@ -27,21 +27,16 @@ namespace Generator
                 return;
             }
 
-            var topLevelTypeSymbols = importedReferenceTypes
-                .Where(t => t.TypeKind == TypeKind.Enum || t.TypeKind == TypeKind.Class)
-                .Where(t => t.DeclaredAccessibility == Accessibility.Public)
-                .ToArray();
-
             var sourceNodes = new SourceGeneratorNodeFactory(
                 generateFromAssemblyName,
                 context.Compilation.Assembly.Name)
-                .CreateGeneratorsFromTypes(topLevelTypeSymbols);
+                .CreateGeneratorsFromTypes(importedReferenceTypes);
             foreach (var parentNode in sourceNodes)
             {
-                var codeGeneratorWriter = new CodeGeneratorWriter(context);
-                parentNode.AddSourceText(codeGeneratorWriter);
+                var sourceNodeWriterVisitor = new SourceWriterNodeVisitor(context);
+                parentNode.Accept(sourceNodeWriterVisitor);
 
-                codeGeneratorWriter.Write();
+                sourceNodeWriterVisitor.WriteSource();
             }
         }
 

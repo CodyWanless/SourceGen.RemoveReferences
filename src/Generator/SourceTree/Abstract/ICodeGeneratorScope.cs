@@ -1,6 +1,6 @@
 ﻿using Generator.SourceTree;
 
-namespace Generator
+namespace Generator.SourceTree.Abstract
 {
     internal interface ICodeGeneratorScope : ICodeGeneratorBuilder
     {

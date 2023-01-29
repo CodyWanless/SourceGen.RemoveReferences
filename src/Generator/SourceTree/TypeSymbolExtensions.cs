@@ -19,5 +19,17 @@ namespace Generator.SourceTree
 
             return typeSymbol.ContainingNamespace.Name;
         }
+
+        public static string GetAccessibilityString(this ISymbol typeSymbol)
+        {
+            return typeSymbol.DeclaredAccessibility switch
+            {
+                Accessibility.Private => "private",
+                Accessibility.Protected => "protected",
+                Accessibility.Internal => "internal",
+                Accessibility.Public => "public",
+                _ => string.Empty,
+            };
+        }
     }
 }
