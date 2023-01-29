@@ -58,5 +58,16 @@ namespace Generator.SourceTree.Model
             // TODO: This has to be updated to align with new assembly
             codeGeneratorBuilder.AddLineOfSource($"namespace {this.NewAssemblyNamespace}");
         }
+
+        internal string GetNewNamespace(
+            string existing)
+        {
+            if (existing.StartsWith(this.sourceAssemblyRootNamespace))
+            {
+                return existing.Replace(this.sourceAssemblyRootNamespace, this.destinationAssemblyRootNamespace);
+            }
+
+            return existing;
+        }
     }
 }

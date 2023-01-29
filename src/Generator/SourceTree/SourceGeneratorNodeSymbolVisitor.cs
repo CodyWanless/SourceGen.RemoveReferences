@@ -58,9 +58,9 @@ namespace Generator.SourceTree
         public override ISourceGeneratorNode? VisitMethod(IMethodSymbol symbol)
         {
             // Only intend on handling constructors
-            return symbol.MethodKind switch
+            return (symbol.MethodKind, symbol.ContainingType.TypeKind) switch
             {
-                MethodKind.Constructor => new ConstructorGeneratorNode(symbol),
+                (MethodKind.Constructor, TypeKind.Class) => new ConstructorGeneratorNode(symbol),
                 _ => null,
             };
         }

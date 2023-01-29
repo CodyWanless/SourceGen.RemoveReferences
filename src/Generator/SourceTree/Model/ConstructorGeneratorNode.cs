@@ -28,6 +28,11 @@ namespace Generator.SourceTree.Model
         public void AddSourceText(
             ICodeGeneratorBuilder codeGeneratorBuilder)
         {
+            if (this.ctorSymbol.Parameters.Length == 0)
+            {
+                return;
+            }
+
             codeGeneratorBuilder.AddLineOfSource($"public {this.ctorSymbol.ContainingType.Name}() {{}}");
         }
     }

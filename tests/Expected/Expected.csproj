@@ -2,8 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<LangVersion>8.0</LangVersion>
+		<RootNamespace>TestProject</RootNamespace>
 	</PropertyGroup>
 
 </Project>

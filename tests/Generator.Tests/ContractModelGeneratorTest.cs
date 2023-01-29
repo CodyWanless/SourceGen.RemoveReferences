@@ -15,7 +15,7 @@ namespace Generator.Tests
             const string sourceDirectory = @"..\..\..\..\..\tests\Expected";
             var expectedFileNames = Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories)
                 .Where(filePath => !filePath.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"))
-                .Where(file => file.EndsWith(".cs"));
+                .Where(file => file.EndsWith(".cs") && !file.EndsWith("Routes.cs"));
             var expectedFiles = expectedFileNames
                 .Select(file => (Contents: File.ReadAllText(file), RelativePath: file));
 

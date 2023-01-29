@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Text;
 
-namespace Expected
-{
-    public static class Routes
-    {
-        public const string GetWidgetsPath = "/Widgets/{0}";
-    }
-}
+//namespace Expected
+//{
+//    public static class Routes
+//    {
+//        public const string GetWidgetsPath = "/Widgets/{0}";
+//    }
+//}

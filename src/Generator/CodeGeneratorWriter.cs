@@ -39,16 +39,17 @@ namespace Generator
         {
             this.stringBuilder.Append(this.currentWriteDetails.IndentWhitespace);
             this.stringBuilder.Append(sourceText);
+            this.stringBuilder.AppendLine();
         }
 
         public void BeginWriteScope(ISourceGeneratorNode node)
         {
             // Add brace to denote new scope
-            this.stringBuilder.AppendLine("{");
+            this.AddLineOfSource("{");
 
             // Capture parent information and update indentation
             WriteScopeDetails writeScopeSettings = this.currentWriteDetails.Parent is null
-                ? new(node, 0)
+                ? new(node, 4)
                 : new(node, this.currentWriteDetails.IndentationLevel + 4);
             this.writeScopeDetailStack.Push(this.currentWriteDetails);
             this.currentWriteDetails = writeScopeSettings;
@@ -60,7 +61,7 @@ namespace Generator
             this.currentWriteDetails = this.writeScopeDetailStack.Pop();
 
             // Add closing brace
-            this.stringBuilder.AppendLine("}");
+            this.AddLineOfSource("}");
         }
 
         public void Write()

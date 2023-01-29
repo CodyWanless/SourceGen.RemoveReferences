@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Generator.SourceTree.Abstract;
 using Microsoft.CodeAnalysis;
 
@@ -23,7 +22,8 @@ namespace Generator.SourceTree.Model
         public IReadOnlyCollection<AttributeData> Attributes => this.propertySymbol.GetAttributes();
 
         // This capture property return type only
-        public IReadOnlyCollection<string> RequiredNamespaces => throw new NotImplementedException();
+        public IReadOnlyCollection<string> RequiredNamespaces =>
+            new[] { this.propertySymbol.Type.GetFullNamespace() };
 
         public void Accept(ISourceGeneratorNodeVisitor sourceGeneratorNodeVisitor)
         {
@@ -38,7 +38,7 @@ namespace Generator.SourceTree.Model
 
         private string CreateGetterAndSetter()
         {
-            return $"{{ {this.CreateGetMethod()} {this.CreateSetMethod()}}}";
+            return $"{{ {this.CreateGetMethod()} {this.CreateSetMethod()} }}";
         }
 
         private string? CreateGetMethod()

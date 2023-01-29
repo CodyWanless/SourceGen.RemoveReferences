@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Generator.SourceTree.Abstract;
 using Microsoft.CodeAnalysis;
 
@@ -16,9 +15,11 @@ namespace Generator.SourceTree.Model
 
         public string Name => this.fieldSymbol.Name;
 
-        public IReadOnlyCollection<AttributeData> Attributes => this.fieldSymbol.GetAttributes();
+        public IReadOnlyCollection<AttributeData> Attributes
+            => this.fieldSymbol.GetAttributes();
 
-        public IReadOnlyCollection<string> RequiredNamespaces => throw new NotImplementedException();
+        public IReadOnlyCollection<string> RequiredNamespaces =>
+            new[] { this.fieldSymbol.Type.GetFullNamespace() };
 
         public void Accept(ISourceGeneratorNodeVisitor sourceGeneratorNodeVisitor)
         {

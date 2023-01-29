@@ -6,18 +6,7 @@ namespace Generator.SourceTree
     {
         public static string GetFullNamespace(this ISymbol typeSymbol)
         {
-            if (typeSymbol.ContainingNamespace?.Name is not { Length: > 0 })
-            {
-                return typeSymbol.Name;
-            }
-
-            var prefix = GetFullNamespace(typeSymbol.ContainingNamespace);
-            if (prefix is { Length: > 0 })
-            {
-                return $"{prefix}.{typeSymbol.ContainingNamespace.Name}";
-            }
-
-            return typeSymbol.ContainingNamespace.Name;
+            return GetFullNamespace(typeSymbol.ContainingNamespace);
         }
 
         public static string GetFullNamespace(this INamespaceSymbol namespaceSymbol)
