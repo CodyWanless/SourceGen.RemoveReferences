@@ -13,12 +13,15 @@ namespace Generator
         private readonly StringBuilder stringBuilder;
         private readonly Stack<WriteScopeDetails> writeScopeDetailStack;
         private readonly GeneratorExecutionContext context;
+        private readonly string typeName;
 
         private WriteScopeDetails currentWriteDetails;
-        private string? typeName;
 
-        public CodeGeneratorWriter(GeneratorExecutionContext context)
+        public CodeGeneratorWriter(
+            GeneratorExecutionContext context,
+            string typeName)
         {
+            this.typeName = typeName;
             this.stringBuilder = new();
             this.writeScopeDetailStack = new();
             this.currentWriteDetails = new(null, 0);
@@ -47,7 +50,6 @@ namespace Generator
             WriteScopeDetails writeScopeSettings = this.currentWriteDetails.Parent is null
                 ? new(node, 0)
                 : new(node, this.currentWriteDetails.IndentationLevel + 4);
-            this.typeName ??= node.Name;
             this.writeScopeDetailStack.Push(this.currentWriteDetails);
             this.currentWriteDetails = writeScopeSettings;
         }
@@ -65,7 +67,7 @@ namespace Generator
         {
             if (this.typeName is not { Length: > 0 })
             {
-                throw new InvalidOperationException($"{nameof(this.typeName)} not set. Be sure to invoke {nameof(BeginWriteScope)} at least once.");
+                throw new InvalidOperationException($"{nameof(this.typeName)} not set. Be sure to invoke {nameof(this.BeginWriteScope)} at least once.");
             }
 
             this.context.AddSource(this.typeName, SourceText.From(this.stringBuilder.ToString(), Encoding.UTF8, SourceHashAlgorithm.Sha256));

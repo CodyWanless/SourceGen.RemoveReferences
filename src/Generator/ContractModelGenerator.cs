@@ -20,7 +20,7 @@ namespace Generator
                 return;
             }
 
-            var importedReferenceTypes = this.GetAllTypeSymbols(context.Compilation, generateFromAssemblyName).ToArray();
+            var importedReferenceTypes = GetAllTypeSymbols(context.Compilation, generateFromAssemblyName).ToArray();
             if (!importedReferenceTypes.Any())
             {
                 // No types found for specified reference assembly. Nothing to do.
@@ -33,7 +33,7 @@ namespace Generator
                 .CreateGeneratorsFromTypes(importedReferenceTypes);
             foreach (var parentNode in sourceNodes)
             {
-                var sourceNodeWriterVisitor = new SourceWriterNodeVisitor(context);
+                var sourceNodeWriterVisitor = new SourceWriterNodeVisitor(context, parentNode.Name);
                 parentNode.Accept(sourceNodeWriterVisitor);
 
                 sourceNodeWriterVisitor.WriteSource();
@@ -44,7 +44,7 @@ namespace Generator
         {
         }
 
-        private IEnumerable<ITypeSymbol> GetAllTypeSymbols(
+        private static IEnumerable<ITypeSymbol> GetAllTypeSymbols(
             Compilation compilation,
             string generateFromAssemblyName)
         {

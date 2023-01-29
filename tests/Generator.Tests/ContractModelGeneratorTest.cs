@@ -25,15 +25,15 @@ namespace Generator.Tests
                 {
                     AdditionalReferences =
                     {
-                        OriginalMetadataReference
+                        OriginalMetadataReference,
                     },
                 },
             };
-            foreach (var (Contents, RelativePath) in expectedFiles)
+            foreach (var (contents, relativePath) in expectedFiles)
             {
-                var fileName = Path.GetFileName(RelativePath);
+                var fileName = Path.GetFileName(relativePath);
                 test.TestState.GeneratedSources.Add(
-                    (typeof(ContractModelGenerator), fileName, SourceText.From(Contents, Encoding.UTF8, SourceHashAlgorithm.Sha256)));
+                    (typeof(ContractModelGenerator), fileName, SourceText.From(contents, Encoding.UTF8, SourceHashAlgorithm.Sha256)));
             }
 
             var globalConfig = $"is_global = true{Environment.NewLine}build_property.GenerateDtoFromAssembly = Original";

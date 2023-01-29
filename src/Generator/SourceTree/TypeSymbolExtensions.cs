@@ -8,7 +8,7 @@ namespace Generator.SourceTree
         {
             if (typeSymbol.ContainingNamespace?.Name is not { Length: > 0 })
             {
-                return string.Empty;
+                return typeSymbol.Name;
             }
 
             var prefix = GetFullNamespace(typeSymbol.ContainingNamespace);
@@ -18,6 +18,22 @@ namespace Generator.SourceTree
             }
 
             return typeSymbol.ContainingNamespace.Name;
+        }
+
+        public static string GetFullNamespace(this INamespaceSymbol namespaceSymbol)
+        {
+            if (namespaceSymbol.ContainingNamespace.Name is not { Length: > 0 })
+            {
+                return namespaceSymbol.Name;
+            }
+
+            var prefix = GetFullNamespace(namespaceSymbol.ContainingNamespace);
+            if (prefix is { Length: > 0 })
+            {
+                return $"{prefix}.{namespaceSymbol.Name}";
+            }
+
+            return namespaceSymbol.Name;
         }
 
         public static string GetAccessibilityString(this ISymbol typeSymbol)

@@ -11,6 +11,8 @@ namespace Generator.SourceTree.Model
         private readonly string sourceAssemblyRootNamespace;
         private readonly string destinationAssemblyRootNamespace;
 
+        private string? newAssemblyNamespace;
+
         public NamespaceGeneratorNode(
             INamespaceSymbol namespaceSymbol,
             string sourceAssemblyRootNamespace,
@@ -24,7 +26,20 @@ namespace Generator.SourceTree.Model
         /// <inheritdoc />
         public string Name => this.namespaceSymbol.Name;
 
-        public string NewAssemblyNamespace { get; }
+        public string NewAssemblyNamespace
+        {
+            get
+            {
+                if (this.newAssemblyNamespace == null)
+                {
+                    this.newAssemblyNamespace = this.namespaceSymbol
+                        .GetFullNamespace()
+                        .Replace(this.sourceAssemblyRootNamespace, this.destinationAssemblyRootNamespace);
+                }
+
+                return this.newAssemblyNamespace;
+            }
+        }
 
         /// <inheritdoc />
         public IReadOnlyCollection<string> RequiredNamespaces { get; } = Array.Empty<string>();
@@ -41,7 +56,7 @@ namespace Generator.SourceTree.Model
             ICodeGeneratorBuilder codeGeneratorBuilder)
         {
             // TODO: This has to be updated to align with new assembly
-            codeGeneratorBuilder.AddLineOfSource($"namespace {this.namespaceSymbol.Name}");
+            codeGeneratorBuilder.AddLineOfSource($"namespace {this.NewAssemblyNamespace}");
         }
     }
 }

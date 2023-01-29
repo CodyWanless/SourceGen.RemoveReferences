@@ -12,9 +12,12 @@ namespace Generator.SourceTree
         /// Initializes a new instance of the <see cref="SourceWriterNodeVisitor"/> class.
         /// </summary>
         /// <param name="context">Source generator context.</param>
-        public SourceWriterNodeVisitor(GeneratorExecutionContext context)
+        /// <param name="typeName">Name of containing type. Either the class or enum type name.</param>
+        public SourceWriterNodeVisitor(
+            GeneratorExecutionContext context,
+            string typeName)
         {
-            this.codeGeneratorWriter = new CodeGeneratorWriter(context);
+            this.codeGeneratorWriter = new CodeGeneratorWriter(context, typeName);
         }
 
         public void VisitClass(ClassGeneratorNode classGeneratorNode)
