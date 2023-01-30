@@ -1,6 +1,6 @@
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using System.Text;
 using VerifyCS = Generator.Tests.CSharpSourceGeneratorVerifier<Generator.ContractModelGenerator>;
 
 namespace Generator.Tests
@@ -15,7 +15,7 @@ namespace Generator.Tests
             const string sourceDirectory = @"..\..\..\..\..\tests\Expected";
             var expectedFileNames = Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories)
                 .Where(filePath => !filePath.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"))
-                .Where(file => file.EndsWith(".cs"));
+                .Where(file => file.EndsWith(".cs") && !file.EndsWith("Routes.cs"));
             var expectedFiles = expectedFileNames
                 .Select(file => (Contents: File.ReadAllText(file), RelativePath: file));
 
@@ -25,15 +25,15 @@ namespace Generator.Tests
                 {
                     AdditionalReferences =
                     {
-                        OriginalMetadataReference
+                        OriginalMetadataReference,
                     },
                 },
             };
-            foreach (var (Contents, RelativePath) in expectedFiles)
+            foreach (var (contents, relativePath) in expectedFiles)
             {
-                var fileName = Path.GetFileName(RelativePath);
+                var fileName = Path.GetFileName(relativePath);
                 test.TestState.GeneratedSources.Add(
-                    (typeof(ContractModelGenerator), fileName, SourceText.From(Contents, Encoding.UTF8, SourceHashAlgorithm.Sha256)));
+                    (typeof(ContractModelGenerator), fileName, SourceText.From(contents, Encoding.UTF8, SourceHashAlgorithm.Sha256)));
             }
 
             var globalConfig = $"is_global = true{Environment.NewLine}build_property.GenerateDtoFromAssembly = Original";

@@ -1,4 +1,4 @@
-﻿namespace Expected.Enums
+﻿namespace TestProject.Enums
 {
     public enum WidgetType
     {

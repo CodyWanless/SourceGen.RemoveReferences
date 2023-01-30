@@ -1,8 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
-using System.Collections.Immutable;
 
 namespace Generator.Tests
 {
@@ -32,7 +32,7 @@ namespace Generator.Tests
             protected override ParseOptions CreateParseOptions()
             {
                 return ((CSharpParseOptions)base.CreateParseOptions())
-                    .WithLanguageVersion(LanguageVersion);
+                    .WithLanguageVersion(this.LanguageVersion);
             }
         }
     }

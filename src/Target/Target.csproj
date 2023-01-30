@@ -13,9 +13,9 @@
 	</ItemGroup>
 
 	<PropertyGroup>
-		<GenerateDtoFromAssembly>Original</GenerateDtoFromAssembly>
+		<!--<GenerateDtoFromAssembly>Original</GenerateDtoFromAssembly>-->
 	</PropertyGroup>
-	
+
 	<!-- Manually reference the generator props because we locally reference the generator. When added via NuGet this happens automatically -->
 	<Import Project="..\Generator\Generator.props" />
 </Project>

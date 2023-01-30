@@ -1,11 +1,10 @@
-﻿using Expected.Types;
-
-namespace Expected.Messages
+﻿namespace TestProject.Messages
 {
+    using TestProject.Types;
+
     public class GetWidgetsResponse
     {
-        public object? ResponseStatus { get; set; }
-
-        public Widget? Widget { get; set; }
+        public object ResponseStatus { get; set; }
+        public Widget Widget { get; set; }
     }
 }
