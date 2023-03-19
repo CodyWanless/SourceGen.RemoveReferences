@@ -48,9 +48,8 @@ namespace Generator
 
         public void AddLineOfSource(string sourceText)
         {
-            this.stringBuilder.Append(this.currentWriteDetails.IndentWhitespace);
+            using var lineScope = this.StartNewLine();
             this.stringBuilder.Append(sourceText);
-            this.stringBuilder.AppendLine();
         }
 
         public void BeginWriteScope(ISourceGeneratorNode node)
