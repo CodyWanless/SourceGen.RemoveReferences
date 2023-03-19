@@ -1,4 +1,5 @@
 ﻿using Generator.SourceTree.Abstract;
+using Generator.SourceTree.Rules;
 using Microsoft.CodeAnalysis;
 
 namespace Generator.SourceTree.Model
@@ -11,24 +12,27 @@ namespace Generator.SourceTree.Model
         }
 
         public override void AddSourceText(
+            IRuleSet ruleSet,
             ICodeGeneratorBuilder codeGeneratorBuilder)
         {
-            codeGeneratorBuilder.AddLineOfSource($"{this.fieldSymbol.GetAccessibilityString()} {this.GetReadonly()} {this.GetTypeName()} {this.GetMemberName()};");
+            codeGeneratorBuilder.AddLineOfSource($"{this.FieldSymbol.GetAccessibilityString()} {this.GetReadonly()} {this.GetTypeName(ruleSet)} {this.GetMemberName()};");
         }
 
         private string GetReadonly()
         {
-            return this.fieldSymbol.IsReadOnly ? "readonly" : string.Empty;
+            return this.FieldSymbol.IsReadOnly ? "readonly" : string.Empty;
         }
 
-        private string GetTypeName()
+        private string GetTypeName(IRuleSet ruleSet)
         {
-            return this.fieldSymbol.Type.Name;
+            return ruleSet.IsAllowedType(this)
+                ? this.FieldSymbol.Type.Name
+                : "object";
         }
 
         private string GetMemberName()
         {
-            return this.fieldSymbol.Name;
+            return this.FieldSymbol.Name;
         }
     }
 }

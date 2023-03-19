@@ -72,7 +72,8 @@ namespace Generator.SourceTree
         /// <returns>A <see cref="PropertyGeneratorNode"/>.</returns>
         public override ISourceGeneratorNode? VisitProperty(IPropertySymbol symbol)
         {
-            return new PropertyGeneratorNode(symbol);
+            var typeNode = new TypeGeneratorNode(symbol.Type);
+            return new PropertyGeneratorNode(symbol, typeNode);
         }
 
         /// <summary>
@@ -91,18 +92,20 @@ namespace Generator.SourceTree
 
             var members = symbol.GetMembers();
             var children = members
-                .Select(m => m.Accept(this))
-                .Where(n => n is not null)
-                .ToArray();
+               .Select(m => m.Accept(this))
+               .Where(n => n is not null)
+               .Select(n => n ?? throw new NullReferenceException("Unexpected null child member"))
+               .ToArray();
+
             var namespaceGeneratorNode = new NamespaceGeneratorNode(
                 symbol.ContainingNamespace,
                 this.sourceAssemblyRootNamespace,
                 this.destinationAssemblyRootNamespace);
 
-            return symbol.TypeKind switch
+            return symbol switch
             {
-                TypeKind.Enum => new EnumGeneratorNode(symbol, namespaceGeneratorNode, children!),
-                TypeKind.Class => new ClassGeneratorNode(symbol, namespaceGeneratorNode, children!),
+                { TypeKind: TypeKind.Enum, IsDefinition: true } => new EnumGeneratorNode(symbol, namespaceGeneratorNode, children),
+                { TypeKind: TypeKind.Class, IsDefinition: true } => new ClassGeneratorNode(symbol, namespaceGeneratorNode, children),
                 _ => null,
             };
         }

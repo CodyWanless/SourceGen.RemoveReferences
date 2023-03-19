@@ -35,6 +35,17 @@ namespace Generator
             this.stringBuilder.AppendLine();
         }
 
+        public IDisposable StartNewLine()
+        {
+            this.stringBuilder.Append(this.currentWriteDetails.IndentWhitespace);
+            return new WriteScopeDisposeToken(this.AddNewLine);
+        }
+
+        public void AddSource(string sourceText)
+        {
+            this.stringBuilder.Append(sourceText);
+        }
+
         public void AddLineOfSource(string sourceText)
         {
             this.stringBuilder.Append(this.currentWriteDetails.IndentWhitespace);
@@ -90,6 +101,21 @@ namespace Generator
             public int IndentationLevel { get; }
 
             public string IndentWhitespace { get; }
+        }
+
+        private record WriteScopeDisposeToken : IDisposable
+        {
+            private readonly Action onDispose;
+
+            public WriteScopeDisposeToken(Action onDispose)
+            {
+                this.onDispose = onDispose;
+            }
+
+            public void Dispose()
+            {
+                this.onDispose();
+            }
         }
     }
 }

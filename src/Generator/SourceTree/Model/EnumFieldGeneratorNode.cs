@@ -1,4 +1,5 @@
 ﻿using Generator.SourceTree.Abstract;
+using Generator.SourceTree.Rules;
 using Microsoft.CodeAnalysis;
 
 namespace Generator.SourceTree.Model
@@ -11,9 +12,10 @@ namespace Generator.SourceTree.Model
         }
 
         public override void AddSourceText(
+            IRuleSet ruleSet,
             ICodeGeneratorBuilder codeGeneratorBuilder)
         {
-            codeGeneratorBuilder.AddLineOfSource($"{this.fieldSymbol.Name} = {this.fieldSymbol.ConstantValue!},");
+            codeGeneratorBuilder.AddLineOfSource($"{this.FieldSymbol.Name} = {this.FieldSymbol.ConstantValue!},");
         }
     }
 }

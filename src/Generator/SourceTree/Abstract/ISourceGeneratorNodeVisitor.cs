@@ -15,5 +15,7 @@ namespace Generator.SourceTree.Abstract
         void VisitNamespace(NamespaceGeneratorNode namespaceGeneratorNode);
 
         void VisitProperty(PropertyGeneratorNode propertyGeneratorNode);
+
+        void VisitType(TypeGeneratorNode typeGeneratorNode);
     }
 }

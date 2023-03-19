@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Generator.SourceTree.Abstract;
+using Generator.SourceTree.Rules;
 using Microsoft.CodeAnalysis;
 
 namespace Generator.SourceTree.Model
@@ -20,7 +21,7 @@ namespace Generator.SourceTree.Model
             this.Children = children;
         }
 
-        public IReadOnlyCollection<INamedTypeSymbol> Interfaces { get; }
+        public IReadOnlyCollection<INamedTypeSymbol> Interfaces { get; } = Array.Empty<INamedTypeSymbol>();
 
         public string Name => this.namedTypeSymbol.Name;
 
@@ -38,12 +39,15 @@ namespace Generator.SourceTree.Model
             sourceGeneratorNodeVisitor.VisitClass(this);
         }
 
-        public void AddSourceText(ICodeGeneratorBuilder codeGeneratorBuilder)
+        public void AddSourceText(
+            IRuleSet ruleSet,
+            ICodeGeneratorBuilder codeGeneratorBuilder)
         {
             // TODO: Aggregate usings
             //       Remove user configurated interfaces and attributes by root namespace
             //       Interfaces
-            foreach (var dependency in this.RequiredNamespaces)
+            foreach (var dependency in this.RequiredNamespaces
+                .Where(ruleSet.IsAllowedNamespace))
             {
                 codeGeneratorBuilder.AddLineOfSource($"using {this.NamespaceGeneratorNode.GetNewNamespace(dependency)};");
             }

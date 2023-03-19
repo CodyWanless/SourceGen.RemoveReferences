@@ -1,31 +1,32 @@
 ﻿using System.Collections.Generic;
 using Generator.SourceTree.Abstract;
+using Generator.SourceTree.Rules;
 using Microsoft.CodeAnalysis;
 
 namespace Generator.SourceTree.Model
 {
     internal abstract record FieldGeneratorNodeBase : ISourceGeneratorNode
     {
-        protected readonly IFieldSymbol fieldSymbol;
-
         public FieldGeneratorNodeBase(IFieldSymbol fieldSymbol)
         {
-            this.fieldSymbol = fieldSymbol;
+            this.FieldSymbol = fieldSymbol;
         }
 
-        public string Name => this.fieldSymbol.Name;
+        protected IFieldSymbol FieldSymbol { get; }
+
+        public string Name => this.FieldSymbol.Name;
 
         public IReadOnlyCollection<AttributeData> Attributes
-            => this.fieldSymbol.GetAttributes();
+            => this.FieldSymbol.GetAttributes();
 
         public IReadOnlyCollection<string> RequiredNamespaces =>
-            new[] { this.fieldSymbol.Type.GetFullNamespace() };
+            new[] { this.FieldSymbol.Type.GetFullNamespace() };
 
         public void Accept(ISourceGeneratorNodeVisitor sourceGeneratorNodeVisitor)
         {
             sourceGeneratorNodeVisitor.VisitField(this);
         }
 
-        public abstract void AddSourceText(ICodeGeneratorBuilder codeGeneratorBuilder);
+        public abstract void AddSourceText(IRuleSet ruleSet, ICodeGeneratorBuilder codeGeneratorBuilder);
     }
 }
