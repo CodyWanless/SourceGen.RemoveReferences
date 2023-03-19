@@ -11,6 +11,8 @@ namespace Generator.Tests
     {
         public class Test : CSharpSourceGeneratorTest<TSourceGenerator, XUnitVerifier>
         {
+            public LanguageVersion LanguageVersion { get; set; } = LanguageVersion.Default;
+
             protected override CompilationOptions CreateCompilationOptions()
             {
                 var compilationOptions = base.CreateCompilationOptions();
@@ -18,7 +20,11 @@ namespace Generator.Tests
                      compilationOptions.SpecificDiagnosticOptions.SetItems(GetNullableWarningsFromCompiler()));
             }
 
-            public LanguageVersion LanguageVersion { get; set; } = LanguageVersion.Default;
+            protected override ParseOptions CreateParseOptions()
+            {
+                return ((CSharpParseOptions)base.CreateParseOptions())
+                    .WithLanguageVersion(this.LanguageVersion);
+            }
 
             private static ImmutableDictionary<string, ReportDiagnostic> GetNullableWarningsFromCompiler()
             {
@@ -27,12 +33,6 @@ namespace Generator.Tests
                 var nullableWarnings = commandLineArguments.CompilationOptions.SpecificDiagnosticOptions;
 
                 return nullableWarnings;
-            }
-
-            protected override ParseOptions CreateParseOptions()
-            {
-                return ((CSharpParseOptions)base.CreateParseOptions())
-                    .WithLanguageVersion(this.LanguageVersion);
             }
         }
     }

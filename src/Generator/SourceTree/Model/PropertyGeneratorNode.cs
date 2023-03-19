@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Generator.SourceTree.Abstract;
+using Generator.SourceTree.Rules;
 using Microsoft.CodeAnalysis;
 
 namespace Generator.SourceTree.Model
@@ -9,12 +10,16 @@ namespace Generator.SourceTree.Model
         private readonly IPropertySymbol propertySymbol;
         private readonly IMethodSymbol? getMethodSymbol;
         private readonly IMethodSymbol? setMethodSymbol;
+        private readonly ISourceGeneratorNode typeNode;
 
-        public PropertyGeneratorNode(IPropertySymbol symbol)
+        public PropertyGeneratorNode(
+            IPropertySymbol symbol,
+            ISourceGeneratorNode typeNode)
         {
             this.propertySymbol = symbol;
             this.getMethodSymbol = symbol.GetMethod;
             this.setMethodSymbol = symbol.SetMethod;
+            this.typeNode = typeNode;
         }
 
         public string Name => this.propertySymbol.Name;
@@ -25,15 +30,21 @@ namespace Generator.SourceTree.Model
         public IReadOnlyCollection<string> RequiredNamespaces =>
             new[] { this.propertySymbol.Type.GetFullNamespace() };
 
-        public void Accept(ISourceGeneratorNodeVisitor sourceGeneratorNodeVisitor)
+        public void Accept(
+            ISourceGeneratorNodeVisitor sourceGeneratorNodeVisitor)
         {
             sourceGeneratorNodeVisitor.VisitProperty(this);
         }
 
         public void AddSourceText(
+            IRuleSet ruleSet,
             ICodeGeneratorBuilder codeGeneratorBuilder)
         {
-            codeGeneratorBuilder.AddLineOfSource($"{this.propertySymbol.GetAccessibilityString()} {this.propertySymbol.Type.Name} {this.propertySymbol.Name} {this.CreateGetterAndSetter()}");
+            using var lineScope = codeGeneratorBuilder.StartNewLine();
+
+            codeGeneratorBuilder.AddSource($"{this.propertySymbol.GetAccessibilityString()} ");
+            this.typeNode.AddSourceText(ruleSet, codeGeneratorBuilder);
+            codeGeneratorBuilder.AddSource($" {this.propertySymbol.Name} {this.CreateGetterAndSetter()}");
         }
 
         private string CreateGetterAndSetter()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Generator.SourceTree.Abstract;
 using Generator.SourceTree.Model;
@@ -72,7 +73,8 @@ namespace Generator.SourceTree
         /// <returns>A <see cref="PropertyGeneratorNode"/>.</returns>
         public override ISourceGeneratorNode? VisitProperty(IPropertySymbol symbol)
         {
-            return new PropertyGeneratorNode(symbol);
+            var typeNode = CreateTypeNode(symbol.Type);
+            return new PropertyGeneratorNode(symbol, typeNode);
         }
 
         /// <summary>
@@ -84,27 +86,56 @@ namespace Generator.SourceTree
         public override ISourceGeneratorNode? VisitNamedType(
             INamedTypeSymbol symbol)
         {
-            if (symbol.DeclaredAccessibility != Accessibility.Public)
+            if (symbol.IsDefinition && symbol.DeclaredAccessibility != Accessibility.Public)
             {
                 return null;
             }
 
-            var members = symbol.GetMembers();
-            var children = members
-                .Select(m => m.Accept(this))
-                .Where(n => n is not null)
-                .ToArray();
-            var namespaceGeneratorNode = new NamespaceGeneratorNode(
-                symbol.ContainingNamespace,
-                this.sourceAssemblyRootNamespace,
-                this.destinationAssemblyRootNamespace);
-
-            return symbol.TypeKind switch
+            IReadOnlyCollection<ISourceGeneratorNode> GetChildren()
             {
-                TypeKind.Enum => new EnumGeneratorNode(symbol, namespaceGeneratorNode, children!),
-                TypeKind.Class => new ClassGeneratorNode(symbol, namespaceGeneratorNode, children!),
+                var members = symbol.GetMembers();
+                return members
+                   .Select(m => m.Accept(this))
+                   .Where(n => n is not null)
+                   .Select(n => n ?? throw new NullReferenceException("Unexpected null child member"))
+                   .ToArray();
+            }
+
+            NamespaceGeneratorNode CreateNamespaceNode()
+            {
+                return new NamespaceGeneratorNode(
+                    symbol.ContainingNamespace,
+                    this.sourceAssemblyRootNamespace,
+                    this.destinationAssemblyRootNamespace);
+            }
+
+            return symbol switch
+            {
+                { TypeKind: TypeKind.Enum } => new EnumGeneratorNode(symbol, CreateNamespaceNode(), GetChildren()),
+                { TypeKind: TypeKind.Class } => new ClassGeneratorNode(symbol, CreateNamespaceNode(), GetChildren()),
                 _ => null,
             };
+        }
+
+        private static TypeGeneratorNode CreateTypeNode(ITypeSymbol symbol)
+        {
+            var typeSymbol = symbol as INamedTypeSymbol ??
+                throw new InvalidOperationException("Property must have a type.");
+
+            IReadOnlyList<ISourceGeneratorNode> typeArgs =
+                Array.Empty<ISourceGeneratorNode>();
+            if (typeSymbol.IsGenericType)
+            {
+                var workingTypeArgs = new List<ISourceGeneratorNode>(typeSymbol.TypeArguments.Length);
+                foreach (var typeArg in typeSymbol.TypeArguments)
+                {
+                    workingTypeArgs.Add(CreateTypeNode(typeArg));
+                }
+
+                typeArgs = workingTypeArgs;
+            }
+
+            return new TypeGeneratorNode(typeSymbol, typeArgs);
         }
     }
 }

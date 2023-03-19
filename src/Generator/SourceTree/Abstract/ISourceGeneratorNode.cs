@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Generator.SourceTree.Rules;
 using Microsoft.CodeAnalysis;
 
 namespace Generator.SourceTree.Abstract
@@ -11,7 +12,9 @@ namespace Generator.SourceTree.Abstract
 
         IReadOnlyCollection<AttributeData> Attributes { get; }
 
-        void AddSourceText(ICodeGeneratorBuilder codeGeneratorBuilder);
+        void AddSourceText(
+            IRuleSet ruleSet,
+            ICodeGeneratorBuilder codeGeneratorBuilder);
 
         void Accept(ISourceGeneratorNodeVisitor sourceGeneratorNodeVisitor);
     }

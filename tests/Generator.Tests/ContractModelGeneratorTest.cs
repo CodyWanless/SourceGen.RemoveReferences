@@ -36,7 +36,7 @@ namespace Generator.Tests
                     (typeof(ContractModelGenerator), fileName, SourceText.From(contents, Encoding.UTF8, SourceHashAlgorithm.Sha256)));
             }
 
-            var globalConfig = $"is_global = true{Environment.NewLine}build_property.GenerateDtoFromAssembly = Original";
+            var globalConfig = $"is_global = true{Environment.NewLine}build_property.GenerateDtoFromAssembly = Original{Environment.NewLine}build_property.ExcludeNamespaceFromOutputAssembly=ServiceStack";
             test.TestState.AnalyzerConfigFiles.Add(("/.globalconfig", globalConfig));
 
             await test.RunAsync();

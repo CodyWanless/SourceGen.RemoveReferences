@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Generator.SourceTree.Abstract;
+using Generator.SourceTree.Rules;
 using Microsoft.CodeAnalysis;
 
 namespace Generator.SourceTree.Model
@@ -53,6 +54,7 @@ namespace Generator.SourceTree.Model
         }
 
         public void AddSourceText(
+            IRuleSet ruleSet,
             ICodeGeneratorBuilder codeGeneratorBuilder)
         {
             // TODO: This has to be updated to align with new assembly
