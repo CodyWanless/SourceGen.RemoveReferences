@@ -1,4 +1,5 @@
-﻿using Generator.SourceTree.Abstract;
+﻿using System;
+using Generator.SourceTree.Abstract;
 using Generator.SourceTree.Model;
 using Generator.SourceTree.Rules;
 using Microsoft.CodeAnalysis;
@@ -21,7 +22,14 @@ namespace Generator.SourceTree
             string typeName)
         {
             this.codeGeneratorWriter = new CodeGeneratorWriter(context, typeName);
-            this.ruleSet = new RuleSet();
+            if (!context.AnalyzerConfigOptions.GlobalOptions
+                    .TryGetValue(Constants.ExcludeNamespaceBuildPropertyName, out var excludeNamespaces)
+                || string.IsNullOrWhiteSpace(excludeNamespaces))
+            {
+                throw new InvalidOperationException($"Expected {Constants.ExcludeNamespaceBuildPropertyName} to be a comma delimited string of namespaces.");
+            }
+
+            this.ruleSet = new RuleSet(excludeNamespaces.Split(',', ';'));
         }
 
         public void VisitClass(ClassGeneratorNode classGeneratorNode)

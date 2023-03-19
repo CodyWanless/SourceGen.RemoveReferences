@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Generator.SourceTree.Abstract;
 
@@ -6,14 +7,16 @@ namespace Generator.SourceTree.Rules
 {
     internal class RuleSet : IRuleSet
     {
-        private static readonly string[] ExcludeNamespaces =
+        private readonly IReadOnlyCollection<string> excludeNamespaces;
+
+        public RuleSet(IReadOnlyCollection<string> excludeNamespaces)
         {
-            "ServiceStack",
-        };
+            this.excludeNamespaces = excludeNamespaces;
+        }
 
         public bool IsAllowedNamespace(string @namespace)
         {
-            foreach (var excludeNamespace in ExcludeNamespaces)
+            foreach (var excludeNamespace in this.excludeNamespaces)
             {
                 if (@namespace.IndexOf(excludeNamespace, StringComparison.OrdinalIgnoreCase) >= 0)
                 {

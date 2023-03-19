@@ -1,5 +1,6 @@
 <Project>
 	<ItemGroup>
 		<CompilerVisibleProperty Include="GenerateDtoFromAssembly" />
+		<CompilerVisibleProperty Include="ExcludeNamespaceFromOutputAssembly" />
 	</ItemGroup>
 </Project>
